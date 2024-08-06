@@ -1,10 +1,5 @@
 #include <garuEditor.hpp>
 
-<<<<<<< HEAD
-void prints(){
-    std::cout<<"is valiable"<<std::endl;
-
-=======
 
 int isValiable(const std::string &PathFile){
     std::fstream script(PathFile);
@@ -40,5 +35,4 @@ std::string getTextError(int error){
     default:
         return "not find error";
     }
->>>>>>> main
 }
