@@ -1,11 +1,13 @@
 #include <iostream>
-#include <garuEditor.hpp>
+#include <garuGenerate.hpp>
 
 
 
-int main(int arg ,char *argv[] ){
+int main(int arg ,char *argv[] )
+{
     prints();
-    if (arg < 2 ){
+    if (arg < 2 )
+    {
         std::cout<<"Error not get all settings" << std::endl;
         return 0 ;
     }
