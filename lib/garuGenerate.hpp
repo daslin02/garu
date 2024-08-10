@@ -30,15 +30,17 @@ struct Token
 // function
 int isValiable(const std::string &PathFile);
 std::string getTextError(int error);
-void prints();
 
 // class
 class GenerateLexer
 {
     private:
-        std::vector<char> lexer;
+        std::fstream file;
+        std::string code;
+        std::vector<std::vector<std::string>> tokens;
     public:
         GenerateLexer();
-        std::fstream openFile(const std::string &path);
-
+        int openFile(const std::string &path);
+        void genLexer();
+        std::string getCode();
 };

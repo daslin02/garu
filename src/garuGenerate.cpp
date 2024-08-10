@@ -20,15 +20,10 @@ int isValiable(const std::string &PathFile)
     {
         return ERROR_FORMAT;
     }
-    std::cout <<"type: " <<type << std::endl;
 
     return ASSURE_VALIABLE;
 }
-void prints()
-{
-    std::cout<<"is valiable"<<std::endl;
 
-}
 std::string getTextError(int error)
 {
     switch (error)
@@ -43,3 +38,49 @@ std::string getTextError(int error)
 }
 
 
+GenerateLexer::GenerateLexer()
+{
+    
+}
+int GenerateLexer::openFile(const std::string &path)
+{
+    std::fstream scriptText(path);
+    int result = isValiable(path);
+    if(result = ASSURE_VALIABLE)
+    {   
+        std::string line;
+        this->file.open(path);
+        while (std::getline(file , line)){
+            this->code.append(line);
+        }
+
+        return ASSURE_VALIABLE;
+    }
+    else
+    {
+        return result;
+    }
+    
+}
+std::string GenerateLexer::getCode()
+{
+    if (code != "")
+    {
+        return code;
+    }
+    else
+    {
+        throw std::runtime_error("not open file");
+    }
+}
+void GenerateLexer::genLexer()
+{
+    file.clear();
+    file.seekg(0);
+    std::string line;
+    int index = 0;
+    while (std::getline(file , line))
+    {
+        tokens[index].push_back(line);
+    }
+}
