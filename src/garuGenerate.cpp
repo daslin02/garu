@@ -81,6 +81,6 @@ void GenerateLexer::genLexer()
     int index = 0;
     while (std::getline(file , line))
     {
-        tokens[index].push_back(line);
+        
     }
 }
