@@ -46,7 +46,7 @@ int GenerateLexer::openFile(const std::string &path)
 {
     std::fstream scriptText(path);
     int result = isValiable(path);
-    if(result = ASSURE_VALIABLE)
+    if(result == ASSURE_VALIABLE)
     {   
         std::string line;
         this->file.open(path);
@@ -70,7 +70,7 @@ std::string GenerateLexer::getCode()
     }
     else
     {
-        throw std::runtime_error("not open file");
+        throw std::runtime_error("not open file or file empty");
     }
 }
 void GenerateLexer::genLexer()
@@ -78,9 +78,18 @@ void GenerateLexer::genLexer()
     file.clear();
     file.seekg(0);
     std::string line;
+    std::vector<std::string> lineLexer;
+    std::string lineObj;
+
     int index = 0;
     while (std::getline(file , line))
     {
-        
+        for(char element :line)
+        {
+            if(!(element == ";"))
+            {
+                lineObj += element;
+            }
+        }
     }
 }

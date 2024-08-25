@@ -16,6 +16,10 @@ enum GaruType
     #define GARY_TYPE_STRING 0x3
     #define GARU_TYPE_BOOL 0x4
     #define GARU_TYPE_OPERATOR 0x5
+    #define GARU_TYPE_FUNCTION 0x6
+    #define GARU_TYPE_TYPE 0x7
+    #define GARU_TYPE_CLASS 0x8
+    #define GARU_TYPE_NAME 0x9
 };
 
 using TokenType = std::variant<int , float , std::string , char , bool>;
