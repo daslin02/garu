@@ -10,7 +10,7 @@ int main(int arg ,char *argv[] )
         std::cout<<"Error not get all settings" << std::endl;
         return 0 ;
     }
-    int result = isValiable(argv[1]);
+    GaruType result = isValiable(argv[1]);
 
     GenerateLexer lexer;
     lexer.openFile(argv[1]);
