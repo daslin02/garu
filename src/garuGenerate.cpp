@@ -27,14 +27,21 @@ GaruType isValiable(const std::string &PathFile)
     return GaruType::ASSURE_VALIABLE;
 }
 
-std::string getTextError(int error)
+std::string getTextType(int error)
 {
     switch (error)
     {
+    case -3:
+        return "ERROR_FOUND\n";
     case -2:
         return "ERROR_FORMAT\n";
     case -1:
         return "ERROR_ISOPEN\n";
+    case 1:
+        return "ASSURE_VALIABLE\n";
+    case 2:
+        return "UNDEFINED_TYPE\n";
+
     default:
         return "not find error\n";
     }
@@ -55,6 +62,34 @@ requests inGaruCOF(const std::string &obj)
             return req;
         }
     }
+
+    for (const std::string &element : GaruTypeFunction)
+    {
+        if(element == obj)
+        {
+            requests req;
+            req.status = GaruType::ASSURE_VALIABLE;
+            req.GType = GaruType::GARU_TYPE_FUNCTION;
+            req.Type= element;
+            req.value = obj;
+            req.msg = "is succes type function";
+            return req;
+        }
+    }
+
+    for (const std::string &element : GaruTypeOperator)
+    {
+        if(element == obj)
+        {
+            requests req;
+            req.status = GaruType::ASSURE_VALIABLE;
+            req.GType = GaruType::GARU_TYPE_OPERATOR;
+            req.Type= element;
+            req.value = obj;
+            req.msg = "is succes type operator";
+            return req;
+        }
+    }
     requests req;
     req.status = GaruType::UNDEFINED_TYPE;
     req.GType = GaruType::GARU_TYPE_NAME;
@@ -71,6 +106,63 @@ Token convertrReqInTok(requests req)
     tok.value = req.value;
     return tok;
 }
+std::string getText(GaruType Gtype)
+{
+    if (Gtype == GaruType::GARU_TYPE_NONE)
+    {
+        return "GARU_TYPE_NONE";
+    }
+    else if (Gtype == GaruType::GARU_TYPE_INT)
+    {
+        return "GARU_TYPE_INT";
+    }
+    else if (Gtype == GaruType::GARU_TYPE_FLOAT)
+    {
+        return "GARU_TYPE_FLOAT";
+    }
+    else if (Gtype == GaruType::GARY_TYPE_STRING)
+    {
+        return "GARU_TYPE_STRING";
+    }
+    else if (Gtype == GaruType::GARU_TYPE_BOOL)
+    {
+        return "GARU_TYPE_BOOL";
+    }
+    else if (Gtype == GaruType::GARU_TYPE_OPERATOR)
+    {
+        return "GARU_TYPE_OPERATOR";
+    }
+    else if (Gtype == GaruType::GARU_TYPE_FUNCTION)
+    {
+        return "GARU_TYPE_FUNCTION";
+    }
+    else if (Gtype == GaruType::GARU_TYPE_TYPE)
+    {
+        return "GARU_TYPE_TYPE";
+    }
+    else if (Gtype == GaruType::GARU_TYPE_CLASS)
+    {
+        return "GARU_TYPE_CLASS";
+    }
+
+    else if (Gtype == GaruType::GARU_TYPE_NAME)
+    {
+        return "GARU_TYPE_NAME";
+    }
+    else
+    {
+        return "UNKNOWN_GARU_TYPE";
+    }
+}
+void printTokenType(TokenType type)
+{
+    auto visitor = [](auto&& arg)
+    {
+        std::cout << arg <<std::endl;
+    };
+    std::visit(visitor , type);
+}
+
 GenerateLexer::GenerateLexer()
 {
     
@@ -145,4 +237,20 @@ void GenerateLexer::genLexer()
         lineLexer.clear();
         obj.clear();
     }
+}
+void GenerateLexer::printLexer()
+{
+    int *index = new int;
+    for( std::vector line : tokens)
+    {   
+        for (Token tok : line)
+        {   
+
+            std::cout << index << getText(tok.GType)<< "\t" << tok.Type << "\t" ;
+            printTokenType(tok.Type);
+            index++;
+        }
+        index = 0;
+    }
+    delete index;
 }

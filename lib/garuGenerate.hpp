@@ -4,6 +4,7 @@
 #include <vector>
 #include <variant>
 
+
 extern std::string GaruTypeClass[];
 extern std::string GaruTypeOperator[];
 extern std::string GaruTypeFunction[];
@@ -15,8 +16,8 @@ enum  class GaruType
     ERROR_FOUND =-3,
     ASSURE_VALIABLE =1,
     UNDEFINED_TYPE = 2,
-    GARU_TYPE_INT =0x1,
     GARU_TYPE_NONE =0x0,
+    GARU_TYPE_INT =0x1,
     GARU_TYPE_FLOAT =0x2,
     GARY_TYPE_STRING =0x3,
     GARU_TYPE_BOOL =0x4,
@@ -52,6 +53,8 @@ GaruType isValiable(const std::string &PathFile);
 std::string getTextError(int error);
 requests inGaruCOF(const std::string &obj);
 Token convertrReqInTok(requests req);
+std::string getText(GaruType Gtype);
+std::string getText(TokenType type);
 // class
 class GenerateLexer
 {
@@ -64,4 +67,5 @@ class GenerateLexer
         GaruType openFile(const std::string &path);
         void genLexer();
         std::string getCode();
+        void printLexer();
 };

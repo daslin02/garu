@@ -17,6 +17,8 @@ int main(int arg ,char *argv[] )
 
     std::string code = lexer.getCode();
     lexer.genLexer();
+    
+    lexer.printLexer();
     // std::cout << getTextError(result);
 
     return 0 ;
