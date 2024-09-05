@@ -54,7 +54,7 @@ std::string getTextError(int error);
 requests inGaruCOF(const std::string &obj);
 Token convertrReqInTok(requests req);
 std::string getText(GaruType Gtype);
-std::string getText(TokenType type);
+void printTokenType(TokenType type);
 // class
 class GenerateLexer
 {

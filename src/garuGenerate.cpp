@@ -51,6 +51,7 @@ requests inGaruCOF(const std::string &obj)
 
     for (const std::string &element : GaruTypeClass)
     {
+        std::cout << obj << std::endl;
         if(element == obj)
         {
             requests req;
@@ -111,6 +112,21 @@ std::string getText(GaruType Gtype)
     if (Gtype == GaruType::GARU_TYPE_NONE)
     {
         return "GARU_TYPE_NONE";
+    }
+    else if (Gtype == GaruType::ERROR_ISOPEN){
+        return "ERROR_ISOPEN";
+    }
+    else if (Gtype == GaruType::ERROR_FORMAT){
+        return "ERROR_FORMAT";
+    }
+    else if (Gtype == GaruType::ERROR_FOUND){
+        return "ERROR_FOUND";
+    }
+    else if (Gtype == GaruType::ASSURE_VALIABLE){
+        return "ASSURE_VALIABLE";
+    }
+    else if (Gtype == GaruType::UNDEFINED_TYPE){
+        return "UNDEFINED_TYPE";
     }
     else if (Gtype == GaruType::GARU_TYPE_INT)
     {
@@ -211,18 +227,29 @@ void GenerateLexer::genLexer()
         std::string obj;
         for(char element :line)
         {
-            if(!(element == ';'))
+            if(element != ';')
             {   
+                // ! не создаёться obj он постоянно пустой в него нужно добавлять символы дибила кусок
+                // TODO ну ебать крч тут проблема сперва ты долженпробегаться циклом и делать слова а толька потом генерировать лексер
+                // TODO как идея генерировать слова или обьекты пока не споткнёшься об пробел ' ' после него можно мутить всю ту хуйню 
                 if (element == '#') break;
+                // ? я про эту хуйню :
                 Token el ;
                 requests result = inGaruCOF(obj); 
-                if (result.status == GaruType::ASSURE_VALIABLE)
+                if (result.status == GaruType::ASSURE_VALIABLE )
                 {
                     Token lineObj = convertrReqInTok(result);
+                    std::cout << "lineObj GType: " << getText(lineObj.GType) << std::endl;
+                    std::cout << "lineObj Type: " << lineObj.Type << std::endl;
+                    std::cout << "lineObj Value: " ; printTokenType(lineObj.value) ;
                     lineLexer.push_back(lineObj);
                 }
                 else
                 {
+                    if (element != ' ')
+                    {
+                        obj += element;
+                    }
                     
                 }
                 
