@@ -2,6 +2,7 @@
 
 std::string GaruTypeClass[] = {"int" , "str" , "bool" , "float" , "none" ,"list" , "dict"}; 
 std::string GaruTypeOperator[] = {"=" , "==" , "*" , "/" , "%" , "!=" , "++" , "--" , "+=" , "-=" , "*=" , "/=" , "in" , "!" };
+char scpecialCharacters[] ={'=' , '/','*','%','!','+','-', '(' , ')' , '{' , '.' ,'}' , '[' , ']'} ;
 std::string GaruTypeFunction[] = {"print" , "input" };
 
 GaruType isValiable(const std::string &PathFile)
@@ -27,31 +28,20 @@ GaruType isValiable(const std::string &PathFile)
     return GaruType::ASSURE_VALIABLE;
 }
 
-std::string getTextType(int error)
-{
-    switch (error)
-    {
-    case -3:
-        return "ERROR_FOUND\n";
-    case -2:
-        return "ERROR_FORMAT\n";
-    case -1:
-        return "ERROR_ISOPEN\n";
-    case 1:
-        return "ASSURE_VALIABLE\n";
-    case 2:
-        return "UNDEFINED_TYPE\n";
-
-    default:
-        return "not find error\n";
-    }
-}
 requests inGaruCOF(const std::string &obj)
 {
-
+    if (obj.empty())
+    {
+        requests req;
+        req.status = GaruType::ERROR_UNDEFINED;
+        req.GType = GaruType::ERROR_UNDEFINED;
+        req.Type= "";
+        req.value = "";
+        req.msg = "is \'obj\' is empty";
+        return req;
+    }
     for (const std::string &element : GaruTypeClass)
     {
-        std::cout << obj << std::endl;
         if(element == obj)
         {
             requests req;
@@ -94,7 +84,7 @@ requests inGaruCOF(const std::string &obj)
     requests req;
     req.status = GaruType::UNDEFINED_TYPE;
     req.GType = GaruType::GARU_TYPE_NAME;
-    req.Type= "name";
+    req.Type= obj;
     req.value = obj;
     req.msg = "is not found \'obj\' in garu types so a new name was created";
     return req;
@@ -112,6 +102,9 @@ std::string getText(GaruType Gtype)
     if (Gtype == GaruType::GARU_TYPE_NONE)
     {
         return "GARU_TYPE_NONE";
+    }
+    else if (Gtype == GaruType::ERROR_UNDEFINED){
+        return "ERROR_UNDEFINED";
     }
     else if (Gtype == GaruType::ERROR_ISOPEN){
         return "ERROR_ISOPEN";
@@ -220,60 +213,188 @@ void GenerateLexer::genLexer()
     file.seekg(0);
     std::string line;
     std::vector<Token> lineLexer;
-    
+    bool noComent = false;
     int index = 0;
+    char last = ' ';
+    bool isObj= false;
+    bool isLastSpecial= true;
     while (std::getline(file , line))
     {   
         std::string obj;
         for(char element :line)
         {
-            if(element != ';')
+            if(element != ';' )
             {   
-                // ! не создаёться obj он постоянно пустой в него нужно добавлять символы дибила кусок
-                // TODO ну ебать крч тут проблема сперва ты долженпробегаться циклом и делать слова а толька потом генерировать лексер
-                // TODO как идея генерировать слова или обьекты пока не споткнёшься об пробел ' ' после него можно мутить всю ту хуйню 
-                if (element == '#') break;
-                // ? я про эту хуйню :
-                Token el ;
-                requests result = inGaruCOF(obj); 
-                if (result.status == GaruType::ASSURE_VALIABLE )
+                if (element == '#') 
                 {
-                    Token lineObj = convertrReqInTok(result);
-                    std::cout << "lineObj GType: " << getText(lineObj.GType) << std::endl;
-                    std::cout << "lineObj Type: " << lineObj.Type << std::endl;
-                    std::cout << "lineObj Value: " ; printTokenType(lineObj.value) ;
-                    lineLexer.push_back(lineObj);
+                    noComent = true;
+                    break;
                 }
-                else
+                if (std::isalpha(element))
                 {
-                    if (element != ' ')
+                    std::cout<<"ALPHA   " << obj+element << std::endl;
+                    if (last == '\''|| last == '\"' )
+                    {
+                        obj = last + element;
+                        last = element;
+                        isLastSpecial = false;
+                    }
+                    else if (isLastSpecial)
+                    {
+                        obj = element;
+                        last = element;
+                        isLastSpecial = false;
+                    }
+                    else if (std::isalpha(last))
                     {
                         obj += element;
+                        last = element;
+                        isLastSpecial = false; 
+                    }
+                    else if (std::isdigit(obj[0]))
+                    {
+                        std::cerr << "can't add letter to a number";
+                        std::exit(EXIT_FAILURE); 
                     }
                     
                 }
-                
+                else if (std::isdigit(element))
+                {
+                    std::cout<<"DIGIT   " << obj+element << std::endl; 
+                    if (last == '\''|| last == '\"' )
+                    {
+                        obj = last + element;
+                        last = element;
+                        isLastSpecial = false;
+                    }
+                    else if (isLastSpecial)
+                    {
+                        obj = element;
+                        last = element;
+                        isLastSpecial = false;
+                    }
+                    else if (std::isalpha(last) )
+                    {
+                        obj += element;
+                        last = element;
+                        isLastSpecial = false;
+                    }else if (std::isdigit(last))
+                    {
+                        obj += element;
+                        last = element;
+                        isLastSpecial = false;
+                    }
+                }
+                else if((obj[0] == '\'' || obj[0] == '\"') && (element== '\'' || element == '\"'))
+                {
+                    last = element;
+                    obj += element;
+                    isLastSpecial = false;
+                    isObj = true;
+                }
+                else
+                {
+                    for (char SpecialChar : scpecialCharacters)
+                    {
+                        if (!obj.empty())
+                        {
+                            if (element == ';')
+                            {
+                                isObj =true;
+                                break;
+                            }
+                            isObj = true;
+                            break;
+                        }
+                        if(element==SpecialChar || element == ' ')
+                        {
+                            if (isLastSpecial && element ==SpecialChar )
+                            {
+                                obj = last + element;
+                                last = element;
+                                isObj = true;
+                                break;
+                            }
+                            else if (isLastSpecial && element == ' ')
+                            {
+                                obj = last ;
+                                last = element;
+                                isObj = true;
+                                break;
+                            }
+                            else if (last == ' ' && element == ' ')
+                            {
+                                isLastSpecial =true;
+                                isObj = false;
+                                break;
+                            }
+                            last = element;
+                            isLastSpecial = true;
+                            isObj = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (isObj)
+                {
+                    Token el ;
+                    requests result = inGaruCOF(obj); 
+                    if (result.status == GaruType::ASSURE_VALIABLE || result.status == GaruType::UNDEFINED_TYPE )
+                    {
+                        Token lineObj = convertrReqInTok(result);
+                        std::cout << "lineObj GType: " << getText(lineObj.GType) << std::endl;
+                        std::cout << "lineObj Type: " << lineObj.Type << std::endl;
+                        std::cout << "lineObj Value: " ; printTokenType(lineObj.value) ;
+                        lineLexer.push_back(lineObj);
+                    }
+
+                    isObj = false;
+                    obj = "";
+                }
+
             }
             else
             {
+                if(!obj.empty())
+                {
+                    Token el ;
+                    requests result = inGaruCOF(obj); 
+                    if (result.status == GaruType::ASSURE_VALIABLE || result.status == GaruType::UNDEFINED_TYPE )
+                    {
+                        Token lineObj = convertrReqInTok(result);
+                        std::cout << "lineObj GType: " << getText(lineObj.GType) << std::endl;
+                        std::cout << "lineObj Type: " << lineObj.Type << std::endl;
+                        std::cout << "lineObj Value: " ; printTokenType(lineObj.value) ;
+                        lineLexer.push_back(lineObj);
+                    }
+
+                    isObj = false;
+                    obj = "";
+                }
                 break;
             } 
         }
-        
-        tokens.push_back(lineLexer);
-        lineLexer.clear();
-        obj.clear();
+        if (noComent)
+        {
+            tokens.push_back(lineLexer);
+            lineLexer.clear();
+            obj.clear();
+        }else{
+            noComent = false;
+        }
     }
 }
 void GenerateLexer::printLexer()
 {
     int *index = new int;
+    std::cout<< "------------------------------------------------------" << std::endl; 
     for( std::vector line : tokens)
     {   
         for (Token tok : line)
         {   
 
-            std::cout << index << getText(tok.GType)<< "\t" << tok.Type << "\t" ;
+            std::cout << index <<"\t"<< getText(tok.GType)<< "\t" << tok.Type << "\t" ;
             printTokenType(tok.Type);
             index++;
         }

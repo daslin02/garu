@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <variant>
+#include <cctype>
 
 
 extern std::string GaruTypeClass[];
@@ -14,6 +15,7 @@ enum  class GaruType
     ERROR_ISOPEN =-1,
     ERROR_FORMAT =-2,
     ERROR_FOUND =-3,
+    ERROR_UNDEFINED = -4,
     ASSURE_VALIABLE =1,
     UNDEFINED_TYPE = 2,
     GARU_TYPE_NONE =0x0,
@@ -50,11 +52,11 @@ struct Token
 
 // function
 GaruType isValiable(const std::string &PathFile);
-std::string getTextError(int error);
 requests inGaruCOF(const std::string &obj);
 Token convertrReqInTok(requests req);
 std::string getText(GaruType Gtype);
 void printTokenType(TokenType type);
+
 // class
 class GenerateLexer
 {

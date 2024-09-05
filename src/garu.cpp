@@ -1,7 +1,6 @@
 #include <iostream>
 #include <garuGenerate.hpp>
-
-
+#include <cctype>
 
 int main(int arg ,char *argv[] )
 {
@@ -10,6 +9,8 @@ int main(int arg ,char *argv[] )
         std::cout<<"Error not get all settings" << std::endl;
         return 0 ;
     }
+
+
     GaruType result = isValiable(argv[1]);
 
     GenerateLexer lexer;
@@ -19,7 +20,7 @@ int main(int arg ,char *argv[] )
     lexer.genLexer();
     
     lexer.printLexer();
-    // std::cout << getTextError(result);
+
 
     return 0 ;
 }
