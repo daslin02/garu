@@ -40,6 +40,85 @@ requests inGaruCOF(const std::string &obj)
         req.msg = "is \'obj\' is empty";
         return req;
     }
+    if (std::isdigit(obj[0]) )
+    {
+        if (obj[0] == '0')
+        {
+            if(obj[1] == '.')
+            {
+                requests req;
+                req.status = GaruType::ASSURE_VALIABLE;
+                req.GType = GaruType::GARU_TYPE_FLOAT;
+                req.Type= "float";
+                req.value = obj;
+                req.msg = "is succes object float";
+                return req;     
+            }
+            requests req;
+            req.status = GaruType::ERROR_FORMAT;
+            req.GType = GaruType::ERROR_FORMAT;
+            req.Type= "float";
+            req.value = obj;
+            req.msg = "is not correct format float";
+            return req; 
+        }
+        // if (obj[1]=='.' )
+        // {
+        //     requests req;
+        //     req.status = GaruType::ASSURE_VALIABLE;
+        //     req.GType = GaruType::GARU_TYPE_FLOAT;
+        //     req.Type= "float";
+        //     req.value = obj;
+        //     req.msg = "is succes object float";
+        //     return req;    
+        // } upgrade this is code from while
+        bool isPoint = true;
+        int index = 0;
+        for (char i : obj)
+        {
+            if (!std::isdigit(i))
+            {
+                if (i == '.')
+                {
+                    isPoint = false;
+                }
+                if(!isPoint)
+                { 
+                    if (obj.size() >= index +1 )
+                    {
+                        if (std::isdigit( obj[index+1]))
+                        {
+                            requests req;
+                            req.status = GaruType::ASSURE_VALIABLE;
+                            req.GType = GaruType::GARU_TYPE_FLOAT;
+                            req.Type= "float";
+                            req.value = obj;
+                            req.msg = "is succes object float";
+                            return req;     
+                        }
+                    }
+                }
+                index++;
+            }
+        }
+        requests req;
+        req.status = GaruType::ASSURE_VALIABLE;
+        req.GType = GaruType::GARU_TYPE_INT;
+        req.Type= "int";
+        req.value = obj;
+        req.msg = "is succes object float";
+        return req;    
+    }
+    if ((obj[0] == '\'' || obj[0] == '\"') && (obj[obj.size() -1 ] == '\'' || obj[obj.size() -1 ] == '\"') )
+    {
+        requests req;
+        req.status = GaruType::ASSURE_VALIABLE;
+        req.GType = GaruType::GARY_TYPE_STRING;
+        req.Type= "string";
+        req.value = obj;
+        req.msg = "is succes object string";
+        return req;    
+    }
     for (const std::string &element : GaruTypeClass)
     {
         if(element == obj)
@@ -186,6 +265,7 @@ GaruType GenerateLexer::openFile(const std::string &path)
         this->file.open(path);
         while (std::getline(file , line)){
             this->code.append(line);
+
         }
 
         return GaruType::ASSURE_VALIABLE;
@@ -313,6 +393,27 @@ void GenerateLexer::genLexer()
                                 obj = last + element;
                                 last = element;
                                 isObj = true;
+                                break;
+                            }
+                            else if (element == '.' && std::isdigit(obj[0]) )
+                            {
+                                obj += element;
+                                last = element;
+                                isLastSpecial = true;
+                                break;
+                            }
+                            else if (obj.empty() && (element == '\'' || element == '\"'))
+                            {
+                                obj += element;
+                                isLastSpecial = true;
+                                last = element;
+                                break; 
+                            }
+                            else if (obj[0] == '\'' || obj[0] == '\"' )
+                            {
+                                obj += element;
+                                last = element;
+                                isLastSpecial = true;
                                 break;
                             }
                             else if (isLastSpecial && element == ' ')
