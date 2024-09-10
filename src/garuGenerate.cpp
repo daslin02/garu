@@ -30,7 +30,7 @@ GaruType isValiable(const std::string &PathFile)
 
 requests inGaruCOF(const std::string &obj)
 {
-    if (obj.empty())
+    if (obj.empty() || obj == " ")
     {
         requests req;
         req.status = GaruType::ERROR_UNDEFINED;
@@ -38,6 +38,16 @@ requests inGaruCOF(const std::string &obj)
         req.Type= "";
         req.value = "";
         req.msg = "is \'obj\' is empty";
+        return req;
+    }
+    if (obj == "]")
+    {
+        requests req;
+        req.status = GaruType::ERROR_UNDEFINED;
+        req.GType = GaruType::ERROR_UNDEFINED;
+        req.Type= "";
+        req.value = "";
+        req.msg = "is \'obj\' is ']' ";
         return req;
     }
     if (std::isdigit(obj[0]) )
@@ -51,7 +61,7 @@ requests inGaruCOF(const std::string &obj)
                 req.GType = GaruType::GARU_TYPE_FLOAT;
                 req.Type= "float";
                 req.value = obj;
-                req.msg = "is succes object float";
+                req.msg = "is succes object float from 0.next digital";
                 return req;     
             }
             requests req;
@@ -62,16 +72,7 @@ requests inGaruCOF(const std::string &obj)
             req.msg = "is not correct format float";
             return req; 
         }
-        // if (obj[1]=='.' )
-        // {
-        //     requests req;
-        //     req.status = GaruType::ASSURE_VALIABLE;
-        //     req.GType = GaruType::GARU_TYPE_FLOAT;
-        //     req.Type= "float";
-        //     req.value = obj;
-        //     req.msg = "is succes object float";
-        //     return req;    
-        // } upgrade this is code from while
+
         bool isPoint = true;
         int index = 0;
         for (char i : obj)
@@ -98,15 +99,15 @@ requests inGaruCOF(const std::string &obj)
                         }
                     }
                 }
-                index++;
             }
+            index++;
         }
         requests req;
         req.status = GaruType::ASSURE_VALIABLE;
         req.GType = GaruType::GARU_TYPE_INT;
         req.Type= "int";
         req.value = obj;
-        req.msg = "is succes object float";
+        req.msg = "is succes object create intenger from block float";
         return req;    
     }
     if ((obj[0] == '\'' || obj[0] == '\"') && (obj[obj.size() -1 ] == '\'' || obj[obj.size() -1 ] == '\"') )
@@ -313,35 +314,22 @@ void GenerateLexer::genLexer()
                 if (std::isalpha(element))
                 {
                     std::cout<<"ALPHA   " << obj+element << std::endl;
-                    if (last == '\''|| last == '\"' )
-                    {
-                        obj = last + element;
-                        last = element;
-                        isLastSpecial = false;
-                    }
-                    else if (isLastSpecial)
-                    {
-                        obj = element;
-                        last = element;
-                        isLastSpecial = false;
-                    }
-                    else if (std::isalpha(last))
-                    {
-                        obj += element;
-                        last = element;
-                        isLastSpecial = false; 
-                    }
-                    else if (std::isdigit(obj[0]))
+
+                    if (std::isdigit(obj[0]))
                     {
                         std::cerr << "can't add letter to a number";
                         std::exit(EXIT_FAILURE); 
                     }
+                    obj += element;
+                    last = element;
+                    isLastSpecial = false;
                     
                 }
                 else if (std::isdigit(element))
                 {
+                    
                     std::cout<<"DIGIT   " << obj+element << std::endl; 
-                    if (last == '\''|| last == '\"' )
+                    if (obj[0] == '\''|| obj[0] == '\"' )
                     {
                         obj = last + element;
                         last = element;
@@ -349,7 +337,7 @@ void GenerateLexer::genLexer()
                     }
                     else if (isLastSpecial)
                     {
-                        obj = element;
+                        obj += element;
                         last = element;
                         isLastSpecial = false;
                     }
@@ -367,23 +355,48 @@ void GenerateLexer::genLexer()
                 }
                 else if((obj[0] == '\'' || obj[0] == '\"') && (element== '\'' || element == '\"'))
                 {
-                    last = element;
                     obj += element;
+                    last = element;
                     isLastSpecial = false;
                     isObj = true;
                 }
                 else
                 {
                     for (char SpecialChar : scpecialCharacters)
-                    {
-                        if (!obj.empty())
+                    {   
+
+                        if (!obj.empty() && element == ';')
                         {
-                            if (element == ';')
+                            isObj = true;
+                            break;
+                        }
+                        if(element=='\'' || element == '\"')
+                        {
+                            if (obj.empty())
                             {
-                                isObj =true;
+                                obj = element;
+                                last = element;
                                 break;
                             }
-                            isObj = true;
+                            else if ( obj[0] == element)
+                            {
+                                obj += element;
+                                last = element;
+                                isObj = true;
+                                break;
+                            }else
+                            {
+                                obj += element;
+                                last = element;
+                                break;
+                            }
+
+                        }
+                        if (element == ' ' && ( obj[0] == '\'' || obj[0] == '\"'))
+                        {
+                            obj += element;
+                            last= element;
+                            isLastSpecial = true;
                             break;
                         }
                         if(element==SpecialChar || element == ' ')
@@ -445,13 +458,17 @@ void GenerateLexer::genLexer()
                     {
                         Token lineObj = convertrReqInTok(result);
                         std::cout << "lineObj GType: " << getText(lineObj.GType) << std::endl;
+                        if(lineObj.GType == GaruType::ASSURE_VALIABLE)
+                        {
+                            std::cout<< result.msg << std::endl;
+                        }
                         std::cout << "lineObj Type: " << lineObj.Type << std::endl;
                         std::cout << "lineObj Value: " ; printTokenType(lineObj.value) ;
-                        lineLexer.push_back(lineObj);
+                        lineLexer.push_back(lineObj); 
                     }
 
                     isObj = false;
-                    obj = "";
+                    obj.clear();
                 }
 
             }
@@ -471,7 +488,8 @@ void GenerateLexer::genLexer()
                     }
 
                     isObj = false;
-                    obj = "";
+
+                    obj.clear();
                 }
                 break;
             } 
@@ -488,18 +506,19 @@ void GenerateLexer::genLexer()
 }
 void GenerateLexer::printLexer()
 {
-    int *index = new int;
+    int index = 0;
+    int Cline = 0;
     std::cout<< "------------------------------------------------------" << std::endl; 
     for( std::vector line : tokens)
     {   
         for (Token tok : line)
         {   
 
-            std::cout << index <<"\t"<< getText(tok.GType)<< "\t" << tok.Type << "\t" ;
+            std::cout << Cline<< ':' << index <<"\t"<< getText(tok.GType)<< "\t" << tok.Type << "\t" ;
             printTokenType(tok.Type);
             index++;
         }
         index = 0;
+        Cline++;
     }
-    delete index;
 }

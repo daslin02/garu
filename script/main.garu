@@ -1,3 +1,3 @@
-int a = 10.9;
-#print("hello");
-int b = "hello world";
+int a   = 10.9;
+#print("hello world01");
+str b = "hello world";
