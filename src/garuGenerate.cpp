@@ -173,7 +173,6 @@ Token convertrReqInTok(requests req)
 {
     Token tok;
     tok.GType = req.GType;
-    tok.Type = req.Type;
     tok.value = req.value;
     return tok;
 }
@@ -462,7 +461,7 @@ void GenerateLexer::genLexer()
                         {
                             std::cout<< result.msg << std::endl;
                         }
-                        std::cout << "lineObj Type: " << lineObj.Type << std::endl;
+                        std::cout << "lineObj Type: " << lineObj.value << std::endl;
                         std::cout << "lineObj Value: " ; printTokenType(lineObj.value) ;
                         lineLexer.push_back(lineObj); 
                     }
@@ -482,7 +481,7 @@ void GenerateLexer::genLexer()
                     {
                         Token lineObj = convertrReqInTok(result);
                         std::cout << "lineObj GType: " << getText(lineObj.GType) << std::endl;
-                        std::cout << "lineObj Type: " << lineObj.Type << std::endl;
+                        std::cout << "lineObj Type: " << lineObj.value << std::endl;
                         std::cout << "lineObj Value: " ; printTokenType(lineObj.value) ;
                         lineLexer.push_back(lineObj);
                     }
@@ -514,8 +513,7 @@ void GenerateLexer::printLexer()
         for (Token tok : line)
         {   
 
-            std::cout << Cline<< ':' << index <<"\t"<< getText(tok.GType)<< "\t" << tok.Type << "\t" ;
-            printTokenType(tok.Type);
+            std::cout << Cline<< ':' << index <<"\t"<< getText(tok.GType)<< "\t" << tok.value << std::endl ;
             index++;
         }
         index = 0;

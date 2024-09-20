@@ -45,8 +45,8 @@ struct requests
 struct Token
 {
     GaruType GType;
-    std::string Type;
-    TokenType value;
+    std::string value;
+    // TokenType value;
 };
 
 

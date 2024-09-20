@@ -21,6 +21,5 @@ int main(int arg ,char *argv[] )
     
     lexer.printLexer();
 
-
     return 0 ;
 }
