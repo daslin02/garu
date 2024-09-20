@@ -9,6 +9,7 @@
 extern std::string GaruTypeClass[];
 extern std::string GaruTypeOperator[];
 extern std::string GaruTypeFunction[];
+extern bool specialCharSignal;
 // constant
 enum  class GaruType 
 {
@@ -28,6 +29,7 @@ enum  class GaruType
     GARU_TYPE_TYPE =0x70,
     
     GARU_TYPE_CLASS =0x80,
+    GARU_TYPE_SPECIAL_CHAR = 0x010,
     GARU_TYPE_NAME =0x90
     
 };
@@ -50,12 +52,14 @@ struct Token
 };
 
 
+
 // function
 GaruType isValiable(const std::string &PathFile);
 requests inGaruCOF(const std::string &obj);
 Token convertrReqInTok(requests req);
 std::string getText(GaruType Gtype);
 void printTokenType(TokenType type);
+bool isSpecialChar(char sp);
 
 // class
 class GenerateLexer
@@ -68,6 +72,8 @@ class GenerateLexer
         GenerateLexer();
         GaruType openFile(const std::string &path);
         void genLexer();
+        void ReadLiner();
+        std::vector<Token> newGenLexer(const std::string line);
         std::string getCode();
         void printLexer();
 };

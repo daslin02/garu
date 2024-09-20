@@ -4,6 +4,8 @@ std::string GaruTypeClass[] = {"int" , "str" , "bool" , "float" , "none" ,"list"
 std::string GaruTypeOperator[] = {"=" , "==" , "*" , "/" , "%" , "!=" , "++" , "--" , "+=" , "-=" , "*=" , "/=" , "in" , "!" };
 char scpecialCharacters[] ={'=' , '/','*','%','!','+','-', '(' , ')' , '{' , '.' ,'}' , '[' , ']'} ;
 std::string GaruTypeFunction[] = {"print" , "input" };
+bool specialCharSignal = false;
+
 
 GaruType isValiable(const std::string &PathFile)
 {
@@ -40,7 +42,7 @@ requests inGaruCOF(const std::string &obj)
         req.msg = "is \'obj\' is empty";
         return req;
     }
-    if (obj == "]")
+    if (obj == "]" && !specialCharSignal )
     {
         requests req;
         req.status = GaruType::ERROR_UNDEFINED;
@@ -49,6 +51,17 @@ requests inGaruCOF(const std::string &obj)
         req.value = "";
         req.msg = "is \'obj\' is ']' ";
         return req;
+    }
+    if ((obj == "(" || obj == ")" || obj == "[" || obj == "]") && specialCharSignal)
+    {
+        requests req;
+        req.status = GaruType::ASSURE_VALIABLE;
+        req.GType = GaruType::GARU_TYPE_SPECIAL_CHAR;
+        req.Type= "specialChar";
+        req.value = obj;
+        req.msg = "is succes special char";
+        specialCharSignal = false;
+        return req; 
     }
     if (std::isdigit(obj[0]) )
     {
@@ -199,6 +212,9 @@ std::string getText(GaruType Gtype)
     }
     else if (Gtype == GaruType::UNDEFINED_TYPE){
         return "UNDEFINED_TYPE";
+    }
+    else if (Gtype == GaruType::GARU_TYPE_SPECIAL_CHAR){
+        return "GARU_TYPE_SPECIAL_CHAR";
     }
     else if (Gtype == GaruType::GARU_TYPE_INT)
     {
@@ -357,6 +373,7 @@ void GenerateLexer::genLexer()
                     obj += element;
                     last = element;
                     isLastSpecial = false;
+                    std::cout << "ERROR 376" << std::endl;
                     isObj = true;
                 }
                 else
@@ -366,6 +383,7 @@ void GenerateLexer::genLexer()
 
                         if (!obj.empty() && element == ';')
                         {
+                            std::cout << "ERROR 386" << std::endl;
                             isObj = true;
                             break;
                         }
@@ -379,6 +397,7 @@ void GenerateLexer::genLexer()
                             }
                             else if ( obj[0] == element)
                             {
+                                std::cout << "ERROR 400" << std::endl;
                                 obj += element;
                                 last = element;
                                 isObj = true;
@@ -398,10 +417,12 @@ void GenerateLexer::genLexer()
                             isLastSpecial = true;
                             break;
                         }
+                        else if (element)
                         if(element==SpecialChar || element == ' ')
                         {
                             if (isLastSpecial && element ==SpecialChar )
                             {
+                                std::cout << "ERROR 425" << std::endl;
                                 obj = last + element;
                                 last = element;
                                 isObj = true;
@@ -412,6 +433,15 @@ void GenerateLexer::genLexer()
                                 obj += element;
                                 last = element;
                                 isLastSpecial = true;
+                                break;
+                            }
+                            else if (element == '(' || element == ')' || element == '[' || element == ']')
+                            {
+                                std::cout << "ERROR 440" << std::endl;
+                                specialCharSignal = true;
+                                last = element;
+                                isLastSpecial = true;
+                                isObj = true;
                                 break;
                             }
                             else if (obj.empty() && (element == '\'' || element == '\"'))
@@ -430,6 +460,7 @@ void GenerateLexer::genLexer()
                             }
                             else if (isLastSpecial && element == ' ')
                             {
+                                std::cout << "ERROR 463" << std::endl;
                                 obj = last ;
                                 last = element;
                                 isObj = true;
@@ -438,9 +469,11 @@ void GenerateLexer::genLexer()
                             else if (last == ' ' && element == ' ')
                             {
                                 isLastSpecial =true;
+                                std::cout << "ERROR 472" << std::endl;
                                 isObj = false;
                                 break;
                             }
+                            std::cout << "ERROR 476" << std::endl;
                             last = element;
                             isLastSpecial = true;
                             isObj = true;
@@ -502,6 +535,123 @@ void GenerateLexer::genLexer()
             noComent = false;
         }
     }
+}
+void GenerateLexer::ReadLiner()
+{
+    file.clear();
+    file.seekg(0);
+    std::string line;
+    std::vector<Token> lexer;
+    while (std::getline(file , line))
+    {
+        if(line[0] != '#')
+        {
+            lexer = this->newGenLexer(line);
+            this->tokens.push_back(lexer);
+            lexer.clear();
+        }
+    }
+}
+bool isSpecialChar(char sp)
+{
+    for (char i : scpecialCharacters )
+    {
+        if(i == sp)
+        {
+            return true ;
+        }
+    }
+    return false;
+}
+std::vector<Token> GenerateLexer::newGenLexer(const std::string line)
+{
+    char last = ' ';
+    std::vector<Token> lineLixer;
+    std::string obj = ""; 
+    for(char element : line)
+    {
+        if(!isSpecialChar(element))
+        {
+            if (isalpha(element))
+            {
+                obj += element;
+                last = element;
+            }
+            else if (isdigit(element))
+            {
+                obj += element;
+                last = element;
+            }
+            else if ( element == '\'' || element == '\"')
+            {
+                if (obj.empty())
+                {
+                    obj += element;
+                    last = element;
+                }
+                else if ((obj[0] == '\'' || obj[0] == '\"') && (element == '\'' || element == '\"'))
+                {
+                    obj += element;
+                    requests req = inGaruCOF(obj);
+                    Token tok = convertrReqInTok(req);
+                    lineLixer.push_back(tok);
+                    obj.clear();
+                }
+            }
+        }
+        else
+        {
+            if (obj.empty())
+            {
+                if(element == '+' || element == '-' || element == '/' || element == '%' || element == '*' )
+                {
+                    obj += element;
+                    last = element;
+                }
+            }
+            else
+            {
+                if (obj[0] == '\'' || obj[0] == '\"')
+                {
+                    obj += element;
+                    last = element;
+                }
+                else if (element == '(' || element == ')' || element == '[' || element == ']')
+                {
+                    requests req = inGaruCOF(obj);
+                    Token tok = convertrReqInTok(req);
+                    lineLixer.push_back(tok);
+                    obj = element;
+                    requests req = inGaruCOF(obj);
+                    Token tok = convertrReqInTok(req);
+                    lineLixer.push_back(tok);
+                    obj.clear();
+                }
+                else if (element == '.')
+                {
+                    if(isdigit(obj[0]))
+                    {
+                        obj += element;
+                        last = element;
+                    }else
+                    {
+                        std::runtime_error("fatal error from GenLexer : syntaxis is not valiable");
+                    }
+                }
+                else if (element == ' ')
+                {
+                    if(last != ' ')
+                    {
+                        requests req = inGaruCOF(obj);
+                        Token tok = convertrReqInTok(req);
+                        lineLixer.push_back(tok);
+                        obj.clear();
+                    }
+                }
+            }
+        }
+    }
+    return lineLixer;
 }
 void GenerateLexer::printLexer()
 {
