@@ -9,7 +9,6 @@
 extern std::string GaruTypeClass[];
 extern std::string GaruTypeOperator[];
 extern std::string GaruTypeFunction[];
-extern bool specialCharSignal;
 // constant
 enum  class GaruType 
 {

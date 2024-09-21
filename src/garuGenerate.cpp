@@ -4,7 +4,6 @@ std::string GaruTypeClass[] = {"int" , "str" , "bool" , "float" , "none" ,"list"
 std::string GaruTypeOperator[] = {"=" , "==" , "*" , "/" , "%" , "!=" , "++" , "--" , "+=" , "-=" , "*=" , "/=" , "in" , "!" };
 char scpecialCharacters[] ={'=' , '/','*','%','!','+','-', '(' , ')' , '{' , '.' ,'}' , '[' , ']'} ;
 std::string GaruTypeFunction[] = {"print" , "input" };
-bool specialCharSignal = false;
 
 
 GaruType isValiable(const std::string &PathFile)
@@ -42,26 +41,18 @@ requests inGaruCOF(const std::string &obj)
         req.msg = "is \'obj\' is empty";
         return req;
     }
-    if (obj == "]" && !specialCharSignal )
+    else if (obj.size() == 1)
     {
-        requests req;
-        req.status = GaruType::ERROR_UNDEFINED;
-        req.GType = GaruType::ERROR_UNDEFINED;
-        req.Type= "";
-        req.value = "";
-        req.msg = "is \'obj\' is ']' ";
-        return req;
-    }
-    if ((obj == "(" || obj == ")" || obj == "[" || obj == "]") && specialCharSignal)
-    {
-        requests req;
-        req.status = GaruType::ASSURE_VALIABLE;
-        req.GType = GaruType::GARU_TYPE_SPECIAL_CHAR;
-        req.Type= "specialChar";
-        req.value = obj;
-        req.msg = "is succes special char";
-        specialCharSignal = false;
-        return req; 
+        if (isSpecialChar(obj[0]))
+        {
+            requests req;
+            req.status = GaruType::ASSURE_VALIABLE;
+            req.GType = GaruType::GARU_TYPE_SPECIAL_CHAR;
+            req.Type= "specialChar";
+            req.value = obj;
+            req.msg = "is succes special char";
+            return req; 
+        }
     }
     if (std::isdigit(obj[0]) )
     {
@@ -365,7 +356,6 @@ std::vector<Token> GenerateLexer::GenerateTokens(const std::string line)
             {
                 obj += element;
                 last = element;
-                std::cout << obj << std::endl;
             }
             else if ( element == '\'' || element == '\"')
             {
@@ -418,7 +408,8 @@ std::vector<Token> GenerateLexer::GenerateTokens(const std::string line)
         { // is speciall char
             if (obj.empty())
             {
-                if(element == '+' || element == '-' || element == '/' || element == '%' || element == '*' )
+                if(element == '+' || element == '-' || element == '/' || 
+                    element == '%' || element == '*' || element == '=' )
                 {
                     obj += element;
                     last = element;
@@ -454,16 +445,6 @@ std::vector<Token> GenerateLexer::GenerateTokens(const std::string line)
                         throw std::runtime_error("fatal error from GenLexer : syntaxis is not valiable");
                     }
                 }
-                // else if (element == ' ')
-                // {
-                //     if(last != ' ')
-                //     {
-                //         req = inGaruCOF(obj);
-                //         tok = convertrReqInTok(req);
-                //         lineLixer.push_back(tok);
-                //         obj.clear();
-                //     }
-                // }
             }
         }
     }
