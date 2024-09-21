@@ -1,3 +1,4 @@
 int a   = 10.9;
 str b = "hello world";
+int c = input("Write C: ");
 print(b);

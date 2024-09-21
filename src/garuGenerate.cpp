@@ -352,12 +352,7 @@ std::vector<Token> GenerateLexer::GenerateTokens(const std::string line)
         }
         else if(!isSpecialChar(element))
         {
-            if (obj[0] == '\'' || obj[0] == '\"')
-            {
-                obj += element;
-                last = element;
-            }
-            else if ( element == '\'' || element == '\"')
+            if ( element == '\'' || element == '\"')
             {
                 if (obj.empty())
                 {
@@ -372,6 +367,11 @@ std::vector<Token> GenerateLexer::GenerateTokens(const std::string line)
                     lineLixer.push_back(tok);
                     obj.clear();
                 }
+            }
+            else if (obj[0] == '\'' || obj[0] == '\"')
+            {
+                obj += element;
+                last = element;
             }
             else if (isalpha(element))
             {
@@ -408,12 +408,14 @@ std::vector<Token> GenerateLexer::GenerateTokens(const std::string line)
         { // is speciall char
             if (obj.empty())
             {
-                if(element == '+' || element == '-' || element == '/' || 
-                    element == '%' || element == '*' || element == '=' )
-                {
-                    obj += element;
-                    last = element;
-                }
+                obj += element;
+                last = element;
+                // if(element == '+' || element == '-' || element == '/' || 
+                //     element == '%' || element == '*' || element == '=' )
+                // {
+                //     obj += element;
+                //     last = element;
+                // }
             }
             else
             {
