@@ -16,9 +16,10 @@ int main(int arg ,char *argv[] )
     GenerateLexer lexer;
     lexer.openFile(argv[1]);
 
-    std::string code = lexer.getCode();
-    lexer.genLexer();
-    
+
+    // std::string code = lexer.getCode();
+    // lexer.genLexer();
+    lexer.ReadLiner();
     lexer.printLexer();
 
     return 0 ;

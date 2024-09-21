@@ -68,12 +68,12 @@ class GenerateLexer
         std::fstream file;
         std::string code;
         std::vector<std::vector<Token>> tokens;
+        std::vector<Token> GenerateTokens(const std::string line);
     public:
         GenerateLexer();
         GaruType openFile(const std::string &path);
-        void genLexer();
         void ReadLiner();
-        std::vector<Token> newGenLexer(const std::string line);
+        void genLexer();
         std::string getCode();
         void printLexer();
 };

@@ -303,239 +303,7 @@ std::string GenerateLexer::getCode()
         throw std::runtime_error("not open file or file empty");
     }
 }
-void GenerateLexer::genLexer()
-{
-    file.clear();
-    file.seekg(0);
-    std::string line;
-    std::vector<Token> lineLexer;
-    bool noComent = false;
-    int index = 0;
-    char last = ' ';
-    bool isObj= false;
-    bool isLastSpecial= true;
-    while (std::getline(file , line))
-    {   
-        std::string obj;
-        for(char element :line)
-        {
-            if(element != ';' )
-            {   
-                if (element == '#') 
-                {
-                    noComent = true;
-                    break;
-                }
-                if (std::isalpha(element))
-                {
-                    std::cout<<"ALPHA   " << obj+element << std::endl;
 
-                    if (std::isdigit(obj[0]))
-                    {
-                        std::cerr << "can't add letter to a number";
-                        std::exit(EXIT_FAILURE); 
-                    }
-                    obj += element;
-                    last = element;
-                    isLastSpecial = false;
-                    
-                }
-                else if (std::isdigit(element))
-                {
-                    
-                    std::cout<<"DIGIT   " << obj+element << std::endl; 
-                    if (obj[0] == '\''|| obj[0] == '\"' )
-                    {
-                        obj = last + element;
-                        last = element;
-                        isLastSpecial = false;
-                    }
-                    else if (isLastSpecial)
-                    {
-                        obj += element;
-                        last = element;
-                        isLastSpecial = false;
-                    }
-                    else if (std::isalpha(last) )
-                    {
-                        obj += element;
-                        last = element;
-                        isLastSpecial = false;
-                    }else if (std::isdigit(last))
-                    {
-                        obj += element;
-                        last = element;
-                        isLastSpecial = false;
-                    }
-                }
-                else if((obj[0] == '\'' || obj[0] == '\"') && (element== '\'' || element == '\"'))
-                {
-                    obj += element;
-                    last = element;
-                    isLastSpecial = false;
-                    std::cout << "ERROR 376" << std::endl;
-                    isObj = true;
-                }
-                else
-                {
-                    for (char SpecialChar : scpecialCharacters)
-                    {   
-
-                        if (!obj.empty() && element == ';')
-                        {
-                            std::cout << "ERROR 386" << std::endl;
-                            isObj = true;
-                            break;
-                        }
-                        if(element=='\'' || element == '\"')
-                        {
-                            if (obj.empty())
-                            {
-                                obj = element;
-                                last = element;
-                                break;
-                            }
-                            else if ( obj[0] == element)
-                            {
-                                std::cout << "ERROR 400" << std::endl;
-                                obj += element;
-                                last = element;
-                                isObj = true;
-                                break;
-                            }else
-                            {
-                                obj += element;
-                                last = element;
-                                break;
-                            }
-
-                        }
-                        if (element == ' ' && ( obj[0] == '\'' || obj[0] == '\"'))
-                        {
-                            obj += element;
-                            last= element;
-                            isLastSpecial = true;
-                            break;
-                        }
-                        else if (element)
-                        if(element==SpecialChar || element == ' ')
-                        {
-                            if (isLastSpecial && element ==SpecialChar )
-                            {
-                                std::cout << "ERROR 425" << std::endl;
-                                obj = last + element;
-                                last = element;
-                                isObj = true;
-                                break;
-                            }
-                            else if (element == '.' && std::isdigit(obj[0]) )
-                            {
-                                obj += element;
-                                last = element;
-                                isLastSpecial = true;
-                                break;
-                            }
-                            else if (element == '(' || element == ')' || element == '[' || element == ']')
-                            {
-                                std::cout << "ERROR 440" << std::endl;
-                                specialCharSignal = true;
-                                last = element;
-                                isLastSpecial = true;
-                                isObj = true;
-                                break;
-                            }
-                            else if (obj.empty() && (element == '\'' || element == '\"'))
-                            {
-                                obj += element;
-                                isLastSpecial = true;
-                                last = element;
-                                break; 
-                            }
-                            else if (obj[0] == '\'' || obj[0] == '\"' )
-                            {
-                                obj += element;
-                                last = element;
-                                isLastSpecial = true;
-                                break;
-                            }
-                            else if (isLastSpecial && element == ' ')
-                            {
-                                std::cout << "ERROR 463" << std::endl;
-                                obj = last ;
-                                last = element;
-                                isObj = true;
-                                break;
-                            }
-                            else if (last == ' ' && element == ' ')
-                            {
-                                isLastSpecial =true;
-                                std::cout << "ERROR 472" << std::endl;
-                                isObj = false;
-                                break;
-                            }
-                            std::cout << "ERROR 476" << std::endl;
-                            last = element;
-                            isLastSpecial = true;
-                            isObj = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (isObj)
-                {
-                    Token el ;
-                    requests result = inGaruCOF(obj); 
-                    if (result.status == GaruType::ASSURE_VALIABLE || result.status == GaruType::UNDEFINED_TYPE )
-                    {
-                        Token lineObj = convertrReqInTok(result);
-                        std::cout << "lineObj GType: " << getText(lineObj.GType) << std::endl;
-                        if(lineObj.GType == GaruType::ASSURE_VALIABLE)
-                        {
-                            std::cout<< result.msg << std::endl;
-                        }
-                        std::cout << "lineObj Type: " << lineObj.value << std::endl;
-                        std::cout << "lineObj Value: " ; printTokenType(lineObj.value) ;
-                        lineLexer.push_back(lineObj); 
-                    }
-
-                    isObj = false;
-                    obj.clear();
-                }
-
-            }
-            else
-            {
-                if(!obj.empty())
-                {
-                    Token el ;
-                    requests result = inGaruCOF(obj); 
-                    if (result.status == GaruType::ASSURE_VALIABLE || result.status == GaruType::UNDEFINED_TYPE )
-                    {
-                        Token lineObj = convertrReqInTok(result);
-                        std::cout << "lineObj GType: " << getText(lineObj.GType) << std::endl;
-                        std::cout << "lineObj Type: " << lineObj.value << std::endl;
-                        std::cout << "lineObj Value: " ; printTokenType(lineObj.value) ;
-                        lineLexer.push_back(lineObj);
-                    }
-
-                    isObj = false;
-
-                    obj.clear();
-                }
-                break;
-            } 
-        }
-        if (noComent)
-        {
-            tokens.push_back(lineLexer);
-            lineLexer.clear();
-            obj.clear();
-        }else{
-            noComent = false;
-        }
-    }
-}
 void GenerateLexer::ReadLiner()
 {
     file.clear();
@@ -546,7 +314,7 @@ void GenerateLexer::ReadLiner()
     {
         if(line[0] != '#')
         {
-            lexer = this->newGenLexer(line);
+            lexer = this->GenerateTokens(line);
             this->tokens.push_back(lexer);
             lexer.clear();
         }
@@ -563,24 +331,41 @@ bool isSpecialChar(char sp)
     }
     return false;
 }
-std::vector<Token> GenerateLexer::newGenLexer(const std::string line)
+std::vector<Token> GenerateLexer::GenerateTokens(const std::string line)
 {
     char last = ' ';
     std::vector<Token> lineLixer;
     std::string obj = ""; 
+    requests req;
+    Token tok;
     for(char element : line)
     {
-        if(!isSpecialChar(element))
+        if (element == ';')
         {
-            if (isalpha(element))
+            if(!obj.empty())
+            {
+                req = inGaruCOF(obj);
+                tok = convertrReqInTok(req);
+                lineLixer.push_back(tok);
+                obj.clear();
+            }
+            else if (obj[0] == '\'' || obj[0] == '\"')
             {
                 obj += element;
                 last = element;
             }
-            else if (isdigit(element))
+            else if (last == ';')
+            {
+                throw  std::runtime_error("more ;");
+            }
+        }
+        else if(!isSpecialChar(element))
+        {
+            if (obj[0] == '\'' || obj[0] == '\"')
             {
                 obj += element;
                 last = element;
+                std::cout << obj << std::endl;
             }
             else if ( element == '\'' || element == '\"')
             {
@@ -592,15 +377,45 @@ std::vector<Token> GenerateLexer::newGenLexer(const std::string line)
                 else if ((obj[0] == '\'' || obj[0] == '\"') && (element == '\'' || element == '\"'))
                 {
                     obj += element;
-                    requests req = inGaruCOF(obj);
-                    Token tok = convertrReqInTok(req);
+                    req = inGaruCOF(obj);
+                    tok = convertrReqInTok(req);
+                    lineLixer.push_back(tok);
+                    obj.clear();
+                }
+            }
+            else if (isalpha(element))
+            {
+                obj += element;
+                last = element;
+            }
+            else if (isdigit(element))
+            {
+                obj += element;
+                last = element;
+            }
+            else if (element == ' ')
+            {
+                if(obj[0]== '\'' || obj[0] == '\"')
+                {
+                    obj += element;
+                    last = element;
+                }
+                else if (last == ' ' )
+                {
+                    last = element;
+                }
+                else
+                {
+                    last = element;
+                    req = inGaruCOF(obj);
+                    tok = convertrReqInTok(req);
                     lineLixer.push_back(tok);
                     obj.clear();
                 }
             }
         }
         else
-        {
+        { // is speciall char
             if (obj.empty())
             {
                 if(element == '+' || element == '-' || element == '/' || element == '%' || element == '*' )
@@ -618,12 +433,12 @@ std::vector<Token> GenerateLexer::newGenLexer(const std::string line)
                 }
                 else if (element == '(' || element == ')' || element == '[' || element == ']')
                 {
-                    requests req = inGaruCOF(obj);
-                    Token tok = convertrReqInTok(req);
+                    req = inGaruCOF(obj);
+                    tok = convertrReqInTok(req);
                     lineLixer.push_back(tok);
                     obj = element;
-                    requests req = inGaruCOF(obj);
-                    Token tok = convertrReqInTok(req);
+                    req = inGaruCOF(obj);
+                    tok = convertrReqInTok(req);
                     lineLixer.push_back(tok);
                     obj.clear();
                 }
@@ -633,21 +448,22 @@ std::vector<Token> GenerateLexer::newGenLexer(const std::string line)
                     {
                         obj += element;
                         last = element;
-                    }else
+                    }
+                    else
                     {
-                        std::runtime_error("fatal error from GenLexer : syntaxis is not valiable");
+                        throw std::runtime_error("fatal error from GenLexer : syntaxis is not valiable");
                     }
                 }
-                else if (element == ' ')
-                {
-                    if(last != ' ')
-                    {
-                        requests req = inGaruCOF(obj);
-                        Token tok = convertrReqInTok(req);
-                        lineLixer.push_back(tok);
-                        obj.clear();
-                    }
-                }
+                // else if (element == ' ')
+                // {
+                //     if(last != ' ')
+                //     {
+                //         req = inGaruCOF(obj);
+                //         tok = convertrReqInTok(req);
+                //         lineLixer.push_back(tok);
+                //         obj.clear();
+                //     }
+                // }
             }
         }
     }
