@@ -4,7 +4,8 @@ std::string GaruTypeClass[] = {"int" , "str" , "bool" , "float" , "none" ,"list"
 std::string GaruTypeOperator[] = {"=" , "==" , "*" , "/" , "%" , "!=" , "++" , "--" , "+=" , "-=" , "*=" , "/=" , "in" , "!" };
 char scpecialCharacters[] ={'=' , '/','*','%','!','+','-', '(' , ')' , '{' , '.' ,'}' , '[' , ']'} ;
 std::string GaruTypeFunction[] = {"print" , "input" };
-
+int allSize = 0;
+int openBlock = 0 ;
 
 GaruType isValiable(const std::string &PathFile)
 {
@@ -40,6 +41,30 @@ requests inGaruCOF(const std::string &obj)
         req.value = "";
         req.msg = "is \'obj\' is empty";
         return req;
+    }else if (obj == "{" || obj == "}")
+    {
+        if (obj == "{")
+        {   
+            openBlock++;
+            requests req;
+            req.status = GaruType::ASSURE_VALIABLE;
+            req.GType = GaruType::GARU_TYPE_BLOCK;
+            req.Type= obj;
+            req.value = std::to_string(openBlock);
+            req.msg = "is openBlock: " +std::to_string(openBlock);
+            return req;
+        }
+        else 
+        {
+            requests req;
+            req.status = GaruType::ASSURE_VALIABLE;
+            req.GType = GaruType::GARU_TYPE_BLOCK;
+            req.Type= obj;
+            req.value =  "/"+std::to_string(openBlock);
+            req.msg = "is closed Block: " +std::to_string(openBlock);
+            openBlock--;
+            return req;
+        }
     }
     else if (obj.size() == 1)
     {
@@ -203,6 +228,10 @@ std::string getText(GaruType Gtype)
     }
     else if (Gtype == GaruType::UNDEFINED_TYPE){
         return "UNDEFINED_TYPE";
+    }
+    else if (Gtype == GaruType::GARU_TYPE_BLOCK )
+    {
+        return "GARU_TYPE_BLOCK ";
     }
     else if (Gtype == GaruType::GARU_TYPE_SPECIAL_CHAR){
         return "GARU_TYPE_SPECIAL_CHAR";
@@ -410,12 +439,6 @@ std::vector<Token> GenerateLexer::GenerateTokens(const std::string line)
             {
                 obj += element;
                 last = element;
-                // if(element == '+' || element == '-' || element == '/' || 
-                //     element == '%' || element == '*' || element == '=' )
-                // {
-                //     obj += element;
-                //     last = element;
-                // }
             }
             else
             {
@@ -423,17 +446,33 @@ std::vector<Token> GenerateLexer::GenerateTokens(const std::string line)
                 {
                     obj += element;
                     last = element;
-                }
-                else if (element == '(' || element == ')' || element == '[' || element == ']')
+                } else if (obj == "{" || obj == "}" )
                 {
                     req = inGaruCOF(obj);
                     tok = convertrReqInTok(req);
                     lineLixer.push_back(tok);
-                    obj = element;
-                    req = inGaruCOF(obj);
-                    tok = convertrReqInTok(req);
-                    lineLixer.push_back(tok);
                     obj.clear();
+                }
+                else if (element == '(' || element == ')' || element == '[' || element == ']')
+                {
+                    if (obj.empty())
+                    { // is empty
+                        req = inGaruCOF(obj);
+                        tok = convertrReqInTok(req);
+                        lineLixer.push_back(tok);
+                        obj.clear();
+                    }
+                    else 
+                    { 
+                        req = inGaruCOF(obj);
+                        tok = convertrReqInTok(req);
+                        lineLixer.push_back(tok);
+                        obj = element;
+                        req = inGaruCOF(obj);
+                        tok = convertrReqInTok(req);
+                        lineLixer.push_back(tok);
+                        obj.clear();
+                    }
                 }
                 else if (element == '.')
                 {

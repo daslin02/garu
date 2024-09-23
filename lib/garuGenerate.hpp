@@ -6,6 +6,9 @@
 #include <cctype>
 
 
+//value
+extern int allSize;
+extern int openBlock;
 extern std::string GaruTypeClass[];
 extern std::string GaruTypeOperator[];
 extern std::string GaruTypeFunction[];
@@ -26,6 +29,7 @@ enum  class GaruType
     GARU_TYPE_OPERATOR =0x50,
     GARU_TYPE_FUNCTION =0x60,
     GARU_TYPE_TYPE =0x70,
+    GARU_TYPE_BLOCK = 0x35,
     
     GARU_TYPE_CLASS =0x80,
     GARU_TYPE_SPECIAL_CHAR = 0x010,
@@ -47,7 +51,6 @@ struct Token
 {
     GaruType GType;
     std::string value;
-    // TokenType value;
 };
 
 
