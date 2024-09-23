@@ -32,7 +32,6 @@ GaruType isValiable(const std::string &PathFile)
 
 requests inGaruCOF(const std::string &obj)
 {
-    std::cout << obj << std::endl;
     if (obj.empty() || obj == " ")
     {
         requests req;
@@ -46,7 +45,6 @@ requests inGaruCOF(const std::string &obj)
     {
         if (obj == "{")
         {   
-            std::cout << "is corect { " << std::endl;
             openBlock++;
             requests req;
             req.status = GaruType::ASSURE_VALIABLE;
@@ -58,7 +56,6 @@ requests inGaruCOF(const std::string &obj)
         }
         else 
         {
-            std::cout << "is corect } " << std::endl;
             requests req;
             req.status = GaruType::ASSURE_VALIABLE;
             req.GType = GaruType::GARU_TYPE_BLOCK;
@@ -445,10 +442,20 @@ std::vector<Token> GenerateLexer::GenerateTokens(const std::string line)
         }
         else
         { // is speciall char
-            if (!obj.empty())
+            if (obj.empty())
             {
-                obj += element;
-                last = element;
+                if (element == '{' || element == '}')
+                {
+                    obj = element;
+                    req = inGaruCOF(obj);
+                    tok = convertrReqInTok(req);
+                    lineLixer.push_back(tok);
+                    obj.clear();
+                }else
+                {
+                    obj += element;
+                    last = element;
+                }
             }
             else
             {
