@@ -79,8 +79,9 @@ requests inGaruCOF(const std::string &obj)
             return req; 
         }
     }
-    if (std::isdigit(obj[0]) )
+    else if (std::isdigit(obj[0]) )
     {
+        std::cout<< "signal: " << obj << std::endl;
         if (obj[0] == '0')
         {
             if(obj[1] == '.')
@@ -101,7 +102,7 @@ requests inGaruCOF(const std::string &obj)
             req.msg = "is not correct format float";
             return req; 
         }
-
+        // create INTenger
         bool isPoint = true;
         int index = 0;
         for (char i : obj)
@@ -139,7 +140,7 @@ requests inGaruCOF(const std::string &obj)
         req.msg = "is succes object create intenger from block float";
         return req;    
     }
-    if ((obj[0] == '\'' || obj[0] == '\"') && (obj[obj.size() -1 ] == '\'' || obj[obj.size() -1 ] == '\"') )
+    else if ((obj[0] == '\'' || obj[0] == '\"') && (obj[obj.size() -1 ] == '\'' || obj[obj.size() -1 ] == '\"') )
     {
         requests req;
         req.status = GaruType::ASSURE_VALIABLE;
@@ -328,17 +329,30 @@ void GenerateLexer::ReadLiner()
 {
     file.clear();
     file.seekg(0);
+    bool isComent = false;
     std::string line;
     std::vector<Token> lexer;
     while (std::getline(file , line))
     {
         if(line[0] != '#')
         {
-            lexer = this->GenerateTokens(line);
-            this->tokens.push_back(lexer);
-            lexer.clear();
+            if (!isComent)
+            {
+                lexer = this->GenerateTokens(line);
+                this->tokens.push_back(lexer);
+                lexer.clear();
+            }
+        }
+        else if (line[1] == '*' && line[0] == '#')
+        {
+            isComent = true;
+        }
+        else if (line[0] == '*' && line[1] == '#')
+        {
+            isComent = false;
         }
     }
+    SyntaxAnalizator();
 }
 bool isSpecialChar(char sp)
 {
@@ -523,4 +537,67 @@ void GenerateLexer::printLexer()
         index = 0;
         Cline++;
     }
+}
+void GenerateLexer::SyntaxAnalizator()
+{
+    int rows = 0 ;
+    int col = 0 ;
+    std::vector<std::string> names;
+    Token last ;
+    Token types;
+
+    last.GType = GaruType::GARU_TYPE_EMPTY;
+    last.value = "";
+    last.GType = GaruType::GARU_TYPE_EMPTY;
+    last.value = "";
+
+    for(std::vector<Token> line : this->tokens)
+    {
+        for (Token tok : line)
+        {
+            if (last.GType == GaruType::GARU_TYPE_EMPTY )
+            {
+                last = tok;
+            }else
+            {
+                if (tok.GType == GaruType::GARU_TYPE_CLASS)
+                {
+                    if (last.GType == GaruType::GARU_TYPE_CLASS)
+                    {
+                        throw std::runtime_error("can't inicialization garu type from new garu type " 
+                        + std::to_string(rows) + ":" + std::to_string(col));
+                    }
+                    else
+                    {
+                        last = tok;
+                        types = tok;
+                    }
+                }
+                else if (tokenIsType(tok))
+                {
+                    /*
+                    if ()
+                    {
+
+                    }
+                    */
+                }
+            }
+            col++;
+        }
+        rows++;
+    }
+}
+bool tokenIsType(Token tok)
+{
+    GaruType Types[] = {GaruType::GARU_TYPE_INT , GaruType::GARU_TYPE_FLOAT , GaruType::GARY_TYPE_STRING,
+        GaruType::GARU_TYPE_NONE };
+    for (GaruType T : Types)
+    {
+        if (tok.GType == T)
+        {
+            return true;
+        }       
+    }
+    return false;
 }

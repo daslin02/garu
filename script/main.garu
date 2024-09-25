@@ -2,6 +2,9 @@
 #str b = "hello world";
 #int c = input("Write C: ");
 #print(b);
-int test (int a ) {
-    print(a);
-}
+#int test ( int a ) {
+#    print(a);
+#}
+100;
+
+
