@@ -81,7 +81,6 @@ requests inGaruCOF(const std::string &obj)
     }
     else if (std::isdigit(obj[0]) )
     {
-        std::cout<< "signal: " << obj << std::endl;
         if (obj[0] == '0')
         {
             if(obj[1] == '.')
@@ -546,13 +545,13 @@ void GenerateLexer::SyntaxAnalizator()
     Token last ;
     Token types;
 
-    last.GType = GaruType::GARU_TYPE_EMPTY;
-    last.value = "";
-    last.GType = GaruType::GARU_TYPE_EMPTY;
-    last.value = "";
 
     for(std::vector<Token> line : this->tokens)
     {
+        last.GType = GaruType::GARU_TYPE_EMPTY;
+        last.value = "";
+        last.GType = GaruType::GARU_TYPE_EMPTY;
+        last.value = "";
         for (Token tok : line)
         {
             if (last.GType == GaruType::GARU_TYPE_EMPTY )
@@ -575,12 +574,30 @@ void GenerateLexer::SyntaxAnalizator()
                 }
                 else if (tokenIsType(tok))
                 {
-                    /*
-                    if ()
+                    if (last.GType == GaruType::GARU_TYPE_CLASS)
                     {
+                        if(tokenIsType(tok.value))
+                        {
 
+                        }
                     }
-                    */
+                }else if (tok.GType == GaruType::GARU_TYPE_NAME)
+                {
+                    if (inArray(names , tok.value))
+                    {
+                        if (last.GType == GaruType::GARU_TYPE_CLASS)
+                        {
+                            throw std::runtime_error("value is can't inicialization" + 
+                            std::to_string(rows) + ":" + std::to_string(col));
+                        }
+                    }
+                    else
+                    {
+                        if (last.GType == GaruType::GARU_TYPE_CLASS)
+                        {
+                            
+                        }
+                    }
                 }
             }
             col++;
@@ -590,14 +607,36 @@ void GenerateLexer::SyntaxAnalizator()
 }
 bool tokenIsType(Token tok)
 {
-    GaruType Types[] = {GaruType::GARU_TYPE_INT , GaruType::GARU_TYPE_FLOAT , GaruType::GARY_TYPE_STRING,
-        GaruType::GARU_TYPE_NONE };
+    GaruType Types[] = {GaruType::GARU_TYPE_INT , GaruType::GARU_TYPE_FLOAT , GaruType::GARY_TYPE_STRING};
     for (GaruType T : Types)
     {
         if (tok.GType == T)
         {
             return true;
         }       
+    }
+    return false;
+}
+bool tokenIsType(std::string obj)
+{
+    std::string Types[] = {"int", "str", "flaot"};
+    for (std::string T : Types)
+    {
+        if (obj == T)
+        {
+            return true;
+        }       
+    }
+    return false;
+}
+bool inArray(std::vector<std::string> arary , std::string obj)
+{
+    for (std::string i : arary)
+    {
+        if (i == obj)
+        {
+            return true ;
+        }
     }
     return false;
 }

@@ -64,7 +64,8 @@ std::string getText(GaruType Gtype);
 void printTokenType(TokenType type);
 bool isSpecialChar(char sp);
 bool tokenIsType(Token tok);
-
+bool tokenIsType(std::string obj);
+bool inArray(std::vector<std::string> arary , std::string obj);
 // class
 class GenerateLexer
 {

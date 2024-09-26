@@ -1,10 +1,6 @@
-#int a   = 10.9;
-#str b = "hello world";
+int a = 10.9;
+str b = "hello world";
 #int c = input("Write C: ");
 #print(b);
-#int test ( int a ) {
-#    print(a);
-#}
-100;
 
 
