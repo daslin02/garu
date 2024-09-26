@@ -76,7 +76,6 @@ class GenerateLexer
         std::vector<Token> GenerateTokens(const std::string line);
         void SyntaxAnalizator();
     public:
-        GenerateLexer();
         GaruType openFile(const std::string &path);
         void ReadLiner();
         void genLexer();

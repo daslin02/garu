@@ -287,10 +287,6 @@ void printTokenType(TokenType type)
     std::visit(visitor , type);
 }
 
-GenerateLexer::GenerateLexer()
-{
-    
-}
 GaruType GenerateLexer::openFile(const std::string &path)
 {
     std::fstream scriptText(path);

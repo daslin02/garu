@@ -8,6 +8,7 @@ class debug
         bool isDebug = false;
         std::vector<int> flags;
         int curentflag = 0;
+        std::fstream file;
     public:
         void print(std::string obj);
         void print(char* obj[]);
@@ -15,7 +16,8 @@ class debug
         void print(float obj);
         void print(Token obj);
         void print(requests obj);
-        void setFlag();
+        void setFlag(int point);
+        void printFlag(int point);
         void OnDebug();
         void offDebug();
 };

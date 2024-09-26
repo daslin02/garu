@@ -1,4 +1,4 @@
-#include <garuDebager.hpp>
+#include <garuDebuger.hpp>
 
 void debug::OnDebug()
 {
