@@ -568,13 +568,13 @@ void GenerateLexer::SyntaxAnalizator()
                         types = tok;
                     }
                 }
-                else if (tokenIsType(tok))
+                else if (tokenIsType(tok.GType))
                 {
                     if (last.GType == GaruType::GARU_TYPE_CLASS)
                     {
                         if(tokenIsType(tok.value))
                         {
-
+                            
                         }
                     }
                 }else if (tok.GType == GaruType::GARU_TYPE_NAME)
@@ -586,12 +586,16 @@ void GenerateLexer::SyntaxAnalizator()
                             throw std::runtime_error("value is can't inicialization" + 
                             std::to_string(rows) + ":" + std::to_string(col));
                         }
+                        else 
+                        {
+                            std::cout << "get element for names: " << tok.value << std::endl;
+                        }
                     }
                     else
                     {
                         if (last.GType == GaruType::GARU_TYPE_CLASS)
                         {
-                            
+                            std::cout << "inicilization object: " << last.value + " " << tok.value << std::endl;
                         }
                     }
                 }
@@ -601,12 +605,12 @@ void GenerateLexer::SyntaxAnalizator()
         rows++;
     }
 }
-bool tokenIsType(Token tok)
+bool tokenIsType(GaruType obj)
 {
     GaruType Types[] = {GaruType::GARU_TYPE_INT , GaruType::GARU_TYPE_FLOAT , GaruType::GARY_TYPE_STRING};
     for (GaruType T : Types)
     {
-        if (tok.GType == T)
+        if (obj == T)
         {
             return true;
         }       
