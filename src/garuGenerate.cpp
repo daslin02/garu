@@ -1,4 +1,5 @@
 #include <garuGenerate.hpp>
+#include <string>
 
 std::string GaruTypeClass[] = {"int" , "str" , "bool" , "float" , "none" ,"list" , "dict"}; 
 std::string GaruTypeOperator[] = {"=" , "==" , "*" , "/" , "%" , "!=" , "++" , "--" , "+=" , "-=" , "*=" , "/=" , "in" , "!" };
@@ -79,8 +80,9 @@ requests inGaruCOF(const std::string &obj)
             return req; 
         }
     }
-    else if (std::isdigit(obj[0]) )
+    else if (isdigit(obj[0]) )
     {
+
         if (obj[0] == '0')
         {
             if(obj[1] == '.')
@@ -106,7 +108,7 @@ requests inGaruCOF(const std::string &obj)
         int index = 0;
         for (char i : obj)
         {
-            if (!std::isdigit(i))
+            if (!isdigit(i))
             {
                 if (i == '.')
                 {
@@ -187,6 +189,28 @@ requests inGaruCOF(const std::string &obj)
             req.Type= element;
             req.value = obj;
             req.msg = "is succes type operator";
+            return req;
+        }
+    }
+    if(isdigit( obj[0]))
+    {
+        bool isDig = true;
+        for (char i : obj )
+        {
+            if (!isdigit(i))
+            {
+                isDig = false;
+                break;
+            }
+        }
+        if(isDig)
+        {
+            requests req;
+            req.status = GaruType::ASSURE_VALIABLE;
+            req.GType = GaruType::GARU_TYPE_INT;
+            req.Type= obj;
+            req.value = obj;
+            req.msg = "is succes is object intenger";
             return req;
         }
     }

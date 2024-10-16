@@ -3,4 +3,4 @@
 #int c = input("Write C: ");
 #print(b);
 int a = 10;
-a = 8;
+str a  = 8;
