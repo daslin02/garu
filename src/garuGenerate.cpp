@@ -1,3 +1,4 @@
+#include <charconv>
 #include <garuGenerate.hpp>
 #include <string>
 
@@ -561,7 +562,7 @@ void GenerateLexer::SyntaxAnalizator()
 {
     int rows = 0 ;
     int col = 0 ;
-    std::vector<std::string> names;
+    std::vector<Token> names;
     Token last ;
     Token types;
 
@@ -571,7 +572,7 @@ void GenerateLexer::SyntaxAnalizator()
         last.GType = GaruType::GARU_TYPE_EMPTY;
         last.value = "";
         last.GType = GaruType::GARU_TYPE_EMPTY;
-        last.value = "";
+        last.value = ""; // TODO double init value
         for (Token tok : line)
         {
             if (last.GType == GaruType::GARU_TYPE_EMPTY )
@@ -603,7 +604,30 @@ void GenerateLexer::SyntaxAnalizator()
                     }
                 }else if (tok.GType == GaruType::GARU_TYPE_NAME)
                 {
-                    if (inArray(names , tok.value))
+                    bool isFind = false;
+                    //reEdit code 
+                    for (Token name  : names)
+                    {
+                        if (name.value == tok.value)
+                        {
+                            isFind = true;
+                            break;
+                        } 
+                    }/* TODO Fix or use code down
+                    if (inArray(names.value , tok.value))
+                    {
+                        if (last.GType == GaruType::GARU_TYPE_CLASS)
+                        {
+                            throw std::runtime_error("value is can't inicialization" + 
+                            std::to_string(rows) + ":" + std::to_string(col));
+                        }
+                        else 
+                        {
+                            std::cout << "get element for names: " << tok.value << std::endl;
+                        }
+                    }*/
+
+                    if (isFind)
                     {
                         if (last.GType == GaruType::GARU_TYPE_CLASS)
                         {
@@ -629,6 +653,8 @@ void GenerateLexer::SyntaxAnalizator()
         rows++;
     }
 }
+
+// checking is t garuType
 bool tokenIsType(GaruType obj)
 {
     GaruType Types[] = {GaruType::GARU_TYPE_INT , GaruType::GARU_TYPE_FLOAT , GaruType::GARY_TYPE_STRING};
@@ -653,11 +679,24 @@ bool tokenIsType(std::string obj)
     }
     return false;
 }
-bool inArray(std::vector<std::string> arary , std::string obj)
+//checking value in array
+bool inArray(std::vector<std::string> array , std::string obj)
 {
-    for (std::string i : arary)
+    for (std::string i : array)
     {
         if (i == obj)
+        {
+            return true ;
+        }
+    }
+    return false;
+}
+
+bool inArray(std::vector<Token> array , std::string obj)
+{
+    for (Token i : array)
+    {
+        if (i.value == obj)
         {
             return true ;
         }
